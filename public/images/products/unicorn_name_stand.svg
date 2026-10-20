@@ -1,0 +1,181 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFDF9"/><stop offset="100%" stop-color="#F7EBE1"/>
+    </linearGradient>
+
+    <!-- Ambient Glow -->
+    <radialGradient id="ambientGlow" cx="50%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.8"/>
+      <stop offset="55%" stop-color="#FFF5EA" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#F2E6D8" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Soft Studio Shadow Filter -->
+    <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="18" stdDeviation="20" flood-color="#5C4033" flood-opacity="0.18"/>
+    </filter>
+
+    <!-- Deep Contact Shadow -->
+    <filter id="contactShadow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#3D291F" flood-opacity="0.25"/>
+    </filter>
+
+    <!-- Clay Pill Bevel Highlight -->
+    <linearGradient id="whiteRim" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.7"/>
+      <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.08"/>
+    </linearGradient>
+
+    <!-- 3D Print Layer Line Pattern -->
+    <pattern id="layerLines" width="100" height="4" patternUnits="userSpaceOnUse">
+      <line x1="0" y1="2" x2="100" y2="2" stroke="#FFFFFF" stroke-opacity="0.22" stroke-width="1"/>
+    </pattern>
+
+    <!-- Gold Accent Gradient -->
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FCE6B8"/>
+      <stop offset="50%" stop-color="#E2B86E"/>
+      <stop offset="100%" stop-color="#B88A3B"/>
+    </linearGradient>
+
+    <!-- Pedestal Shading -->
+    <radialGradient id="pedestalGrad" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#FFF9F2"/>
+      <stop offset="85%" stop-color="#F3E3D3"/>
+      <stop offset="100%" stop-color="#E5D3C2"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Studio Wall & Ambient Light -->
+  <rect width="800" height="600" fill="url(#bgGrad)"/>
+  <rect width="800" height="600" fill="url(#ambientGlow)"/>
+
+  <!-- Studio Ground Pedestal -->
+  <ellipse cx="400" cy="510" rx="340" ry="60" fill="#4A3428" opacity="0.12" filter="url(#softShadow)"/>
+  <ellipse cx="400" cy="485" rx="320" ry="52" fill="#F3E3D3"/>
+  <ellipse cx="400" cy="478" rx="320" ry="50" fill="url(#pedestalGrad)"/>
+  <ellipse cx="400" cy="477" rx="318" ry="48" fill="none" stroke="#FFFFFF" stroke-opacity="0.5" stroke-width="2"/>
+
+  
+  <!-- Rainbow Arch Behind -->
+  <g filter="url(#softShadow)" transform="translate(400, 310)">
+    <!-- Outer Arch Lavender -->
+    <path d="M -160 0 A 160 160 0 0 1 160 0" fill="none" stroke="#D3B8F5" stroke-width="28" stroke-linecap="round"/>
+    <!-- Mid Arch Butter Yellow -->
+    <path d="M -132 0 A 132 132 0 0 1 132 0" fill="none" stroke="#FCE7A2" stroke-width="24" stroke-linecap="round"/>
+    <!-- Inner Arch Mint Green -->
+    <path d="M -108 0 A 108 108 0 0 1 108 0" fill="none" stroke="#BAE6C7" stroke-width="20" stroke-linecap="round"/>
+  </g>
+
+  <!-- Integrated Pastel Penholder (Right Side) -->
+  <g transform="translate(560, 310)" filter="url(#softShadow)">
+    <ellipse cx="0" cy="110" rx="34" ry="12" fill="#3D291F" opacity="0.18"/>
+    <!-- Cup body -->
+    <path d="M -30 20 L -25 105 Q 0 115 25 105 L 30 20 Z" fill="#D3B8F5"/>
+    <ellipse cx="0" cy="20" rx="30" ry="10" fill="#E6D4FB"/>
+    <ellipse cx="0" cy="20" rx="26" ry="8" fill="#B48FE6"/>
+    <!-- Pens & Pencils Sticking Out -->
+    <rect x="-18" y="-45" width="8" height="65" rx="4" fill="#F8B4C9" transform="rotate(-8 -14 0)"/>
+    <polygon points="-18,-45 -10,-45 -14,-60" fill="#E2B86E" transform="rotate(-8 -14 0)"/>
+    
+    <rect x="2" y="-55" width="8" height="75" rx="4" fill="#8CE1D7" transform="rotate(6 6 0)"/>
+    <polygon points="2,-55 10,-55 6,-70" fill="#F8B4C9" transform="rotate(6 6 0)"/>
+
+    <rect x="-8" y="-62" width="7" height="80" rx="3.5" fill="#FCE7A2"/>
+    <!-- Penholder Layer texture -->
+    <path d="M -30 20 L -25 105 Q 0 115 25 105 L 30 20 Z" fill="url(#layerLines)" opacity="0.4"/>
+  </g>
+
+  <!-- Cute Whimsical 3D Unicorn Figurine (Left Side) -->
+  <g transform="translate(240, 310)" filter="url(#softShadow)">
+    <ellipse cx="0" cy="105" rx="36" ry="12" fill="#3D291F" opacity="0.18"/>
+    <!-- Body -->
+    <ellipse cx="0" cy="70" rx="38" ry="32" fill="#FFFFFF"/>
+    <ellipse cx="0" cy="68" rx="36" ry="30" fill="url(#whiteRim)"/>
+    <!-- Golden Star Emblem -->
+    <path d="M 0 65 L 3 72 L 10 73 L 5 78 L 6 85 L 0 81 L -6 85 L -5 78 L -10 73 L -3 72 Z" fill="url(#goldGrad)"/>
+    <!-- Head -->
+    <circle cx="6" cy="15" r="32" fill="#FFFFFF"/>
+    <circle cx="6" cy="15" r="32" fill="url(#whiteRim)"/>
+    <!-- Rosy Cheek -->
+    <ellipse cx="20" cy="25" rx="6" ry="4" fill="#F8B4C9" opacity="0.8"/>
+    <!-- Happy Sleepy Eye -->
+    <path d="M 12 14 Q 18 20 24 14" fill="none" stroke="#684D3F" stroke-width="3" stroke-linecap="round"/>
+    <!-- Mane Tufts (Pastel Rainbow) -->
+    <path d="M -14 0 Q -30 15 -18 35 Q -32 45 -16 65" fill="none" stroke="#F8B4C9" stroke-width="12" stroke-linecap="round"/>
+    <path d="M -8 -8 Q -24 5 -12 25" fill="none" stroke="#BAE6C7" stroke-width="8" stroke-linecap="round"/>
+    <!-- Cute Ears -->
+    <polygon points="-8,-8 2,-25 10,-8" fill="#FFFFFF"/>
+    <polygon points="-4,-7 2,-20 7,-7" fill="#F8B4C9"/>
+    <!-- Golden Spiral Horn -->
+    <polygon points="12,-10 24,-48 20,-10" fill="url(#goldGrad)"/>
+    <path d="M 14 -18 L 22 -20 M 16 -28 L 23 -30 M 19 -38 L 24 -40" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+  </g>
+
+  <!-- 3D Cloud Stand Base & Name Plaque -->
+  <g transform="translate(380, 420)" filter="url(#softShadow)">
+    <!-- Base Shadow -->
+    <ellipse cx="0" cy="45" rx="210" ry="22" fill="#3D291F" opacity="0.2"/>
+
+    <!-- Cloud Base Bulges (Blush Pink PLA) -->
+    <path d="M -190 20 
+             Q -210 -15 -160 -20 
+             Q -120 -50 -50 -35 
+             Q 0 -60 70 -35 
+             Q 140 -50 180 -15 
+             Q 215 15 180 35 
+             Q 0 50 -180 35 Z" 
+          fill="#FCAEC5"/>
+    <path d="M -190 20 
+             Q -210 -15 -160 -20 
+             Q -120 -50 -50 -35 
+             Q 0 -60 70 -35 
+             Q 140 -50 180 -15 
+             Q 215 15 180 35 
+             Q 0 50 -180 35 Z" 
+          fill="url(#whiteRim)"/>
+
+    <!-- Layer texture on base -->
+    <path d="M -190 20 
+             Q -210 -15 -160 -20 
+             Q -120 -50 -50 -35 
+             Q 0 -60 70 -35 
+             Q 140 -50 180 -15 
+             Q 215 15 180 35 
+             Q 0 50 -180 35 Z" 
+          fill="url(#layerLines)" opacity="0.35"/>
+
+    <!-- Soft Cloud Rim -->
+    <ellipse cx="-130" cy="-5" rx="35" ry="22" fill="#FFE2EC"/>
+    <ellipse cx="130" cy="-2" rx="32" ry="20" fill="#FFE2EC"/>
+    <ellipse cx="0" cy="-18" rx="85" ry="26" fill="#FFE2EC"/>
+
+    <!-- Little 3D Flowers on Stand -->
+    <circle cx="-150" cy="18" r="8" fill="#FCE7A2"/>
+    <circle cx="-150" cy="18" r="4" fill="#FFFFFF"/>
+    <circle cx="150" cy="18" r="8" fill="#BAE6C7"/>
+    <circle cx="150" cy="18" r="4" fill="#FFFFFF"/>
+
+    <!-- Personalized 3D Raised Name: 'Ananya' -->
+    <g transform="translate(0, 10)">
+      <!-- 3D Extrusion Shadow -->
+      <text x="3" y="16" font-family="'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif" font-weight="900" font-size="52" fill="#99385C" text-anchor="middle" letter-spacing="1">Ananya</text>
+      <text x="2" y="14" font-family="'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif" font-weight="900" font-size="52" fill="#C44D76" text-anchor="middle" letter-spacing="1">Ananya</text>
+      <text x="1" y="12" font-family="'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif" font-weight="900" font-size="52" fill="#D6628B" text-anchor="middle" letter-spacing="1">Ananya</text>
+      <!-- Front Face (Pure Crisp White Silk PLA) -->
+      <text x="0" y="8" font-family="'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif" font-weight="900" font-size="52" fill="#FFFFFF" text-anchor="middle" letter-spacing="1">Ananya</text>
+      <!-- Top Bevel Shine -->
+      <text x="0" y="7" font-family="'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif" font-weight="900" font-size="52" fill="none" stroke="#FFFFFF" stroke-width="1.5" text-anchor="middle" letter-spacing="1">Ananya</text>
+    </g>
+  </g>
+
+  <!-- Floating Sparkles & Soft Spheres -->
+  <circle cx="180" cy="220" r="14" fill="#D3B8F5" filter="url(#contactShadow)"/>
+  <circle cx="630" cy="220" r="10" fill="#FCE7A2" filter="url(#contactShadow)"/>
+  <circle cx="580" cy="180" r="16" fill="#F8B4C9" opacity="0.85"/>
+  <path d="M 210 170 L 213 176 L 220 178 L 214 183 L 216 190 L 210 186 L 204 190 L 206 183 L 200 178 L 207 176 Z" fill="url(#goldGrad)"/>
+
+</svg>

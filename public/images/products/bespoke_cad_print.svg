@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FCFCFE"/><stop offset="100%" stop-color="#EEF4F6"/>
+    </linearGradient>
+
+    <!-- Ambient Glow -->
+    <radialGradient id="ambientGlow" cx="50%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.8"/>
+      <stop offset="55%" stop-color="#FFF5EA" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#F2E6D8" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Soft Studio Shadow Filter -->
+    <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="18" stdDeviation="20" flood-color="#5C4033" flood-opacity="0.18"/>
+    </filter>
+
+    <!-- Deep Contact Shadow -->
+    <filter id="contactShadow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#3D291F" flood-opacity="0.25"/>
+    </filter>
+
+    <!-- Clay Pill Bevel Highlight -->
+    <linearGradient id="whiteRim" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.7"/>
+      <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.08"/>
+    </linearGradient>
+
+    <!-- 3D Print Layer Line Pattern -->
+    <pattern id="layerLines" width="100" height="4" patternUnits="userSpaceOnUse">
+      <line x1="0" y1="2" x2="100" y2="2" stroke="#FFFFFF" stroke-opacity="0.22" stroke-width="1"/>
+    </pattern>
+
+    <!-- Gold Accent Gradient -->
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FCE6B8"/>
+      <stop offset="50%" stop-color="#E2B86E"/>
+      <stop offset="100%" stop-color="#B88A3B"/>
+    </linearGradient>
+
+    <!-- Pedestal Shading -->
+    <radialGradient id="pedestalGrad" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#F3F8FA"/>
+      <stop offset="85%" stop-color="#DFE8EB"/>
+      <stop offset="100%" stop-color="#E5D3C2"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Studio Wall & Ambient Light -->
+  <rect width="800" height="600" fill="url(#bgGrad)"/>
+  <rect width="800" height="600" fill="url(#ambientGlow)"/>
+
+  <!-- Studio Ground Pedestal -->
+  <ellipse cx="400" cy="510" rx="340" ry="60" fill="#4A3428" opacity="0.12" filter="url(#softShadow)"/>
+  <ellipse cx="400" cy="485" rx="320" ry="52" fill="#DFE8EB"/>
+  <ellipse cx="400" cy="478" rx="320" ry="50" fill="url(#pedestalGrad)"/>
+  <ellipse cx="400" cy="477" rx="318" ry="48" fill="none" stroke="#FFFFFF" stroke-opacity="0.5" stroke-width="2"/>
+
+  
+  <g filter="url(#softShadow)" transform="translate(400, 310)">
+    <path d="M -150 20 A 150 150 0 0 1 150 20" fill="none" stroke="#FCE7A2" stroke-width="26" stroke-linecap="round"/>
+    <path d="M -122 20 A 122 122 0 0 1 122 20" fill="none" stroke="#8CE1B2" stroke-width="18" stroke-linecap="round"/>
+  </g>
+
+  <!-- Parametric Soft-3D Sculpture & Pastel Filament Spools -->
+  <g transform="translate(400, 360)" filter="url(#softShadow)">
+    <ellipse cx="0" cy="110" rx="200" ry="24" fill="#3D291F" opacity="0.2"/>
+
+    <!-- Filament Spool 1 (Lilac) -->
+    <g transform="translate(-110, 40)">
+      <ellipse cx="0" cy="20" rx="42" ry="16" fill="#B48FE6"/>
+      <rect x="-42" y="-15" width="84" height="35" fill="#D3B8F5"/>
+      <ellipse cx="0" cy="-15" rx="42" ry="16" fill="#E6D4FB"/>
+      <ellipse cx="0" cy="-15" rx="22" ry="8" fill="#996DDB"/>
+    </g>
+
+    <!-- Center Parametric Spiral Clay Sculpture -->
+    <g transform="translate(0, -10)">
+      <ellipse cx="0" cy="80" rx="60" ry="18" fill="#3D291F" opacity="0.2"/>
+      <path d="M -40 70 C -60 20 -10 -40 0 -70 C 10 -40 60 20 40 70 Z" fill="#F8B4C9"/>
+      <path d="M -40 70 C -60 20 -10 -40 0 -70 C 10 -40 60 20 40 70 Z" fill="url(#whiteRim)"/>
+      <!-- Intertwining Spiral Ribbons -->
+      <path d="M -30 60 Q 30 10 -15 -30 Q -40 -10 10 30" fill="none" stroke="#D3B8F5" stroke-width="14" stroke-linecap="round"/>
+      <path d="M 25 50 Q -25 5 15 -35" fill="none" stroke="#FCE7A2" stroke-width="10" stroke-linecap="round"/>
+    </g>
+
+    <!-- Filament Spool 2 (Mint) -->
+    <g transform="translate(110, 40)">
+      <ellipse cx="0" cy="20" rx="42" ry="16" fill="#58AB7C"/>
+      <rect x="-42" y="-15" width="84" height="35" fill="#8CE1B2"/>
+      <ellipse cx="0" cy="-15" rx="42" ry="16" fill="#BAE6C7"/>
+      <ellipse cx="0" cy="-15" rx="22" ry="8" fill="#439364"/>
+    </g>
+  </g>
+
+</svg>

@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFDF9"/><stop offset="100%" stop-color="#FDF1E2"/>
+    </linearGradient>
+
+    <!-- Ambient Glow -->
+    <radialGradient id="ambientGlow" cx="50%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.8"/>
+      <stop offset="55%" stop-color="#FFF5EA" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#F2E6D8" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Soft Studio Shadow Filter -->
+    <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="18" stdDeviation="20" flood-color="#5C4033" flood-opacity="0.18"/>
+    </filter>
+
+    <!-- Deep Contact Shadow -->
+    <filter id="contactShadow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#3D291F" flood-opacity="0.25"/>
+    </filter>
+
+    <!-- Clay Pill Bevel Highlight -->
+    <linearGradient id="whiteRim" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.7"/>
+      <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.08"/>
+    </linearGradient>
+
+    <!-- 3D Print Layer Line Pattern -->
+    <pattern id="layerLines" width="100" height="4" patternUnits="userSpaceOnUse">
+      <line x1="0" y1="2" x2="100" y2="2" stroke="#FFFFFF" stroke-opacity="0.22" stroke-width="1"/>
+    </pattern>
+
+    <!-- Gold Accent Gradient -->
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FCE6B8"/>
+      <stop offset="50%" stop-color="#E2B86E"/>
+      <stop offset="100%" stop-color="#B88A3B"/>
+    </linearGradient>
+
+    <!-- Pedestal Shading -->
+    <radialGradient id="pedestalGrad" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#FFF5EB"/>
+      <stop offset="85%" stop-color="#F3E2D0"/>
+      <stop offset="100%" stop-color="#E5D3C2"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Studio Wall & Ambient Light -->
+  <rect width="800" height="600" fill="url(#bgGrad)"/>
+  <rect width="800" height="600" fill="url(#ambientGlow)"/>
+
+  <!-- Studio Ground Pedestal -->
+  <ellipse cx="400" cy="510" rx="340" ry="60" fill="#4A3428" opacity="0.12" filter="url(#softShadow)"/>
+  <ellipse cx="400" cy="485" rx="320" ry="52" fill="#F3E2D0"/>
+  <ellipse cx="400" cy="478" rx="320" ry="50" fill="url(#pedestalGrad)"/>
+  <ellipse cx="400" cy="477" rx="318" ry="48" fill="none" stroke="#FFFFFF" stroke-opacity="0.5" stroke-width="2"/>
+
+  
+  <g filter="url(#softShadow)" transform="translate(400, 310)">
+    <path d="M -150 20 A 150 150 0 0 1 150 20" fill="none" stroke="#FFAF6E" stroke-width="26" stroke-linecap="round"/>
+    <path d="M -122 20 A 122 122 0 0 1 122 20" fill="none" stroke="#BAE6C7" stroke-width="18" stroke-linecap="round"/>
+  </g>
+
+  <!-- Trio of Interlocking Sensory Snap-Fit Dinosaurs -->
+  <g transform="translate(400, 390)" filter="url(#softShadow)">
+    <!-- Base Puzzle Tray Oval -->
+    <ellipse cx="0" cy="80" rx="220" ry="26" fill="#3D291F" opacity="0.18"/>
+    <rect x="-190" y="35" width="380" height="50" rx="25" fill="#FFF3E5"/>
+    <rect x="-190" y="35" width="380" height="50" rx="25" fill="url(#whiteRim)"/>
+
+    <!-- Dino 1: Sunset Orange T-Rex (Left) -->
+    <g transform="translate(-110, 0)">
+      <ellipse cx="0" cy="45" rx="30" ry="10" fill="#3D291F" opacity="0.2"/>
+      <ellipse cx="0" cy="0" rx="34" ry="42" fill="#FFA564"/>
+      <ellipse cx="0" cy="0" rx="34" ry="42" fill="url(#whiteRim)"/>
+      <circle cx="12" cy="-28" r="22" fill="#FFA564"/>
+      <circle cx="16" cy="-32" r="5" fill="#1C2333"/>
+      <circle cx="18" cy="-34" r="2" fill="#FFFFFF"/>
+      <!-- Snap-Fit Joint Knob -->
+      <circle cx="32" cy="5" r="10" fill="#E28642"/>
+      <!-- Tiny Arm -->
+      <path d="M 12 -2 Q 22 4 14 12" fill="none" stroke="#E28642" stroke-width="5" stroke-linecap="round"/>
+    </g>
+
+    <!-- Dino 2: Seafoam Mint Triceratops (Center) -->
+    <g transform="translate(0, -10)">
+      <ellipse cx="0" cy="55" rx="34" ry="10" fill="#3D291F" opacity="0.2"/>
+      <ellipse cx="0" cy="10" rx="42" ry="44" fill="#8CE1B2"/>
+      <ellipse cx="0" cy="10" rx="42" ry="44" fill="url(#whiteRim)"/>
+      <!-- Triceratops Frill & Horns -->
+      <path d="M -26 -16 C -35 -40 35 -40 26 -16 Z" fill="#69C290"/>
+      <!-- 3 Rounded Horns -->
+      <polygon points="-16,-28 -22,-44 -12,-32" fill="#FFFFFF"/>
+      <polygon points="16,-28 22,-44 12,-32" fill="#FFFFFF"/>
+      <polygon points="0,-16 -4,-32 4,-16" fill="#FFFFFF"/>
+      <!-- Face -->
+      <circle cx="-10" cy="-6" r="4" fill="#1C2333"/>
+      <circle cx="10" cy="-6" r="4" fill="#1C2333"/>
+      <!-- Interlocking Socket -->
+      <circle cx="-38" cy="15" r="10" fill="#58AB7C"/>
+    </g>
+
+    <!-- Dino 3: Butter Yellow Stegosaurus (Right) -->
+    <g transform="translate(115, 0)">
+      <ellipse cx="0" cy="45" rx="30" ry="10" fill="#3D291F" opacity="0.2"/>
+      <ellipse cx="0" cy="5" rx="36" ry="38" fill="#FCE7A2"/>
+      <ellipse cx="0" cy="5" rx="36" ry="38" fill="url(#whiteRim)"/>
+      <!-- Back Plates -->
+      <polygon points="-16,-18 -22,-36 -8,-24" fill="#FFAF6E"/>
+      <polygon points="0,-22 -4,-42 10,-24" fill="#FFAF6E"/>
+      <polygon points="18,-18 20,-36 28,-18" fill="#FFAF6E"/>
+      <!-- Face -->
+      <circle cx="14" cy="-5" r="4.5" fill="#1C2333"/>
+      <circle cx="16" cy="-7" r="1.5" fill="#FFFFFF"/>
+    </g>
+  </g>
+
+</svg>

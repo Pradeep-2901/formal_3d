@@ -1,0 +1,118 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FCFBF9"/><stop offset="100%" stop-color="#ECEBE5"/>
+    </linearGradient>
+
+    <!-- Ambient Glow -->
+    <radialGradient id="ambientGlow" cx="50%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.8"/>
+      <stop offset="55%" stop-color="#FFF5EA" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#F2E6D8" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Soft Studio Shadow Filter -->
+    <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="18" stdDeviation="20" flood-color="#5C4033" flood-opacity="0.18"/>
+    </filter>
+
+    <!-- Deep Contact Shadow -->
+    <filter id="contactShadow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#3D291F" flood-opacity="0.25"/>
+    </filter>
+
+    <!-- Clay Pill Bevel Highlight -->
+    <linearGradient id="whiteRim" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.7"/>
+      <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.08"/>
+    </linearGradient>
+
+    <!-- 3D Print Layer Line Pattern -->
+    <pattern id="layerLines" width="100" height="4" patternUnits="userSpaceOnUse">
+      <line x1="0" y1="2" x2="100" y2="2" stroke="#FFFFFF" stroke-opacity="0.22" stroke-width="1"/>
+    </pattern>
+
+    <!-- Gold Accent Gradient -->
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FCE6B8"/>
+      <stop offset="50%" stop-color="#E2B86E"/>
+      <stop offset="100%" stop-color="#B88A3B"/>
+    </linearGradient>
+
+    <!-- Pedestal Shading -->
+    <radialGradient id="pedestalGrad" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#F6F5EE"/>
+      <stop offset="85%" stop-color="#E1DFD7"/>
+      <stop offset="100%" stop-color="#E5D3C2"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Studio Wall & Ambient Light -->
+  <rect width="800" height="600" fill="url(#bgGrad)"/>
+  <rect width="800" height="600" fill="url(#ambientGlow)"/>
+
+  <!-- Studio Ground Pedestal -->
+  <ellipse cx="400" cy="510" rx="340" ry="60" fill="#4A3428" opacity="0.12" filter="url(#softShadow)"/>
+  <ellipse cx="400" cy="485" rx="320" ry="52" fill="#E1DFD7"/>
+  <ellipse cx="400" cy="478" rx="320" ry="50" fill="url(#pedestalGrad)"/>
+  <ellipse cx="400" cy="477" rx="318" ry="48" fill="none" stroke="#FFFFFF" stroke-opacity="0.5" stroke-width="2"/>
+
+  
+  <!-- Architectural Sage & Cream Arch Behind -->
+  <g filter="url(#softShadow)" transform="translate(400, 310)">
+    <path d="M -140 20 A 140 140 0 0 1 140 20" fill="none" stroke="#D3E2D8" stroke-width="26" stroke-linecap="round"/>
+    <path d="M -112 20 A 112 112 0 0 1 112 20" fill="none" stroke="#F5EFE6" stroke-width="16" stroke-linecap="round"/>
+  </g>
+
+  <!-- Integrated Succulent Planter (Right Side) -->
+  <g transform="translate(560, 310)" filter="url(#softShadow)">
+    <ellipse cx="0" cy="110" rx="34" ry="12" fill="#3D291F" opacity="0.18"/>
+    <!-- Fluted Ceramic Pot -->
+    <rect x="-30" y="30" width="60" height="80" rx="16" fill="#EDE4DA"/>
+    <ellipse cx="0" cy="30" rx="30" ry="10" fill="#F8F3EC"/>
+    <ellipse cx="0" cy="30" rx="25" ry="8" fill="#887B6D"/>
+    <!-- 3D Printed Rosette Succulent -->
+    <path d="M 0 5 Q -18 -8 0 -22 Q 18 -8 0 5 Z" fill="#9BC3A8"/>
+    <path d="M -15 15 Q -32 5 -18 -8 Q -5 5 -15 15 Z" fill="#7FA98D"/>
+    <path d="M 15 15 Q 32 5 18 -8 Q 5 5 15 15 Z" fill="#7FA98D"/>
+    <circle cx="0" cy="8" r="4" fill="#C99BA5"/>
+  </g>
+
+  <!-- Clean Minimalist Dual-Tone Monolith (Left Side) -->
+  <g transform="translate(240, 310)" filter="url(#softShadow)">
+    <ellipse cx="0" cy="105" rx="36" ry="14" fill="#3D291F" opacity="0.18"/>
+    <!-- Architectural Pill Column -->
+    <rect x="-24" y="0" width="48" height="100" rx="24" fill="#9BB8A4"/>
+    <rect x="-24" y="0" width="48" height="100" rx="24" fill="url(#whiteRim)"/>
+    <circle cx="0" cy="24" r="16" fill="#F5EFE6"/>
+    <circle cx="0" cy="24" r="8" fill="url(#goldGrad)"/>
+  </g>
+
+  <!-- 3D Stand Base & Name Plaque ('Mihir') -->
+  <g transform="translate(380, 420)" filter="url(#softShadow)">
+    <ellipse cx="0" cy="46" rx="210" ry="22" fill="#3D291F" opacity="0.2"/>
+    <!-- Earthy Warm Taupe / Sand Base -->
+    <rect x="-190" y="-30" width="380" height="70" rx="35" fill="#869E8F"/>
+    <rect x="-190" y="-30" width="380" height="70" rx="35" fill="url(#whiteRim)"/>
+    <rect x="-190" y="-30" width="380" height="70" rx="35" fill="url(#layerLines)" opacity="0.3"/>
+    
+    <!-- Top Warm Sand Slab -->
+    <rect x="-175" y="-22" width="350" height="34" rx="17" fill="#F3ECE2"/>
+
+    <!-- 3D Name: 'Mihir' (Architectural Charcoal & Gold PLA) -->
+    <g transform="translate(0, 10)">
+      <text x="3" y="16" font-family="'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif" font-weight="900" font-size="52" fill="#2E3B33" text-anchor="middle" letter-spacing="2">Mihir</text>
+      <text x="2" y="14" font-family="'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif" font-weight="900" font-size="52" fill="#43564B" text-anchor="middle" letter-spacing="2">Mihir</text>
+      <text x="1" y="12" font-family="'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif" font-weight="900" font-size="52" fill="#A88B52" text-anchor="middle" letter-spacing="2">Mihir</text>
+      <text x="0" y="8" font-family="'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif" font-weight="900" font-size="52" fill="#242B27" text-anchor="middle" letter-spacing="2">Mihir</text>
+      <text x="0" y="7" font-family="'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif" font-weight="900" font-size="52" fill="none" stroke="#FFFFFF" stroke-width="1.2" text-anchor="middle" letter-spacing="2">Mihir</text>
+    </g>
+  </g>
+
+  <!-- Spheres -->
+  <circle cx="170" cy="210" r="14" fill="#D3E2D8" filter="url(#contactShadow)"/>
+  <circle cx="630" cy="210" r="12" fill="#EDE4DA" filter="url(#contactShadow)"/>
+
+</svg>

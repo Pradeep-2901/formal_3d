@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFDF9"/><stop offset="100%" stop-color="#F2E8FB"/>
+    </linearGradient>
+
+    <!-- Ambient Glow -->
+    <radialGradient id="ambientGlow" cx="50%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.8"/>
+      <stop offset="55%" stop-color="#FFF5EA" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#F2E6D8" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Soft Studio Shadow Filter -->
+    <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="18" stdDeviation="20" flood-color="#5C4033" flood-opacity="0.18"/>
+    </filter>
+
+    <!-- Deep Contact Shadow -->
+    <filter id="contactShadow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#3D291F" flood-opacity="0.25"/>
+    </filter>
+
+    <!-- Clay Pill Bevel Highlight -->
+    <linearGradient id="whiteRim" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.7"/>
+      <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.08"/>
+    </linearGradient>
+
+    <!-- 3D Print Layer Line Pattern -->
+    <pattern id="layerLines" width="100" height="4" patternUnits="userSpaceOnUse">
+      <line x1="0" y1="2" x2="100" y2="2" stroke="#FFFFFF" stroke-opacity="0.22" stroke-width="1"/>
+    </pattern>
+
+    <!-- Gold Accent Gradient -->
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FCE6B8"/>
+      <stop offset="50%" stop-color="#E2B86E"/>
+      <stop offset="100%" stop-color="#B88A3B"/>
+    </linearGradient>
+
+    <!-- Pedestal Shading -->
+    <radialGradient id="pedestalGrad" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#FAF5FC"/>
+      <stop offset="85%" stop-color="#E8DDF2"/>
+      <stop offset="100%" stop-color="#E5D3C2"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Studio Wall & Ambient Light -->
+  <rect width="800" height="600" fill="url(#bgGrad)"/>
+  <rect width="800" height="600" fill="url(#ambientGlow)"/>
+
+  <!-- Studio Ground Pedestal -->
+  <ellipse cx="400" cy="510" rx="340" ry="60" fill="#4A3428" opacity="0.12" filter="url(#softShadow)"/>
+  <ellipse cx="400" cy="485" rx="320" ry="52" fill="#E8DDF2"/>
+  <ellipse cx="400" cy="478" rx="320" ry="50" fill="url(#pedestalGrad)"/>
+  <ellipse cx="400" cy="477" rx="318" ry="48" fill="none" stroke="#FFFFFF" stroke-opacity="0.5" stroke-width="2"/>
+
+  
+  <g filter="url(#softShadow)" transform="translate(400, 310)">
+    <path d="M -150 20 A 150 150 0 0 1 150 20" fill="none" stroke="#D3B8F5" stroke-width="30" stroke-linecap="round"/>
+    <path d="M -122 20 A 122 122 0 0 1 122 20" fill="none" stroke="#FCE7A2" stroke-width="18" stroke-linecap="round"/>
+  </g>
+
+  <!-- Main Multi-Tier Organizer Body -->
+  <g transform="translate(400, 370)" filter="url(#softShadow)">
+    <ellipse cx="0" cy="100" rx="200" ry="24" fill="#3D291F" opacity="0.2"/>
+    
+    <!-- Back Penholder Bin (Lilac) -->
+    <rect x="-140" y="-80" width="110" height="150" rx="30" fill="#C4A2EE"/>
+    <rect x="-140" y="-80" width="110" height="150" rx="30" fill="url(#whiteRim)"/>
+    <ellipse cx="-85" cy="-80" rx="55" ry="18" fill="#9F70D9"/>
+    
+    <!-- Pencils in Bin -->
+    <rect x="-110" y="-140" width="10" height="90" rx="5" fill="#F8B4C9" transform="rotate(-8 -105 -100)"/>
+    <rect x="-90" y="-155" width="10" height="100" rx="5" fill="#BAE6C7" transform="rotate(4 -85 -110)"/>
+    <rect x="-70" y="-145" width="10" height="90" rx="5" fill="#FCE7A2" transform="rotate(12 -65 -100)"/>
+
+    <!-- Right Sticky-Note / Phone Dock (Soft Butter) -->
+    <rect x="20" y="-30" width="130" height="100" rx="24" fill="#FCE7A2"/>
+    <rect x="20" y="-30" width="130" height="100" rx="24" fill="url(#whiteRim)"/>
+    <rect x="35" y="-18" width="100" height="12" rx="6" fill="#E2C76A"/>
+
+    <!-- Front Sculpted Cute Bunny Character Bin -->
+    <ellipse cx="0" cy="50" rx="85" ry="60" fill="#FFFFFF"/>
+    <ellipse cx="0" cy="50" rx="85" ry="60" fill="url(#whiteRim)"/>
+    <!-- Bunny Long Ears -->
+    <ellipse cx="-40" cy="-25" rx="16" ry="45" fill="#FFFFFF" transform="rotate(-15 -40 -25)"/>
+    <ellipse cx="-40" cy="-25" rx="9" ry="32" fill="#F8B4C9" transform="rotate(-15 -40 -25)"/>
+    
+    <ellipse cx="40" cy="-25" rx="16" ry="45" fill="#FFFFFF" transform="rotate(15 40 -25)"/>
+    <ellipse cx="40" cy="-25" rx="9" ry="32" fill="#F8B4C9" transform="rotate(15 40 -25)"/>
+
+    <!-- Bunny Face -->
+    <ellipse cx="-20" cy="45" rx="6" ry="8" fill="#3D291F"/>
+    <circle cx="-18" cy="42" r="2.5" fill="#FFFFFF"/>
+    <ellipse cx="20" cy="45" rx="6" ry="8" fill="#3D291F"/>
+    <circle cx="22" cy="42" r="2.5" fill="#FFFFFF"/>
+
+    <!-- Pink Cheeks & Cute Mouth -->
+    <circle cx="-32" cy="55" r="7" fill="#F8B4C9" opacity="0.8"/>
+    <circle cx="32" cy="55" r="7" fill="#F8B4C9" opacity="0.8"/>
+    <polygon points="0,52 -4,48 4,48" fill="#F8B4C9"/>
+    <path d="M -6 56 Q 0 62 6 56" fill="none" stroke="#684D3F" stroke-width="2.5" stroke-linecap="round"/>
+  </g>
+
+</svg>

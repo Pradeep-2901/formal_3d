@@ -1,0 +1,218 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg-cream: #FFF3E5;
+    --surface-ivory: #FFFAF4;
+    --clay-lavender: #D3B8F5;
+    --clay-lavender-light: #E8DDF8;
+    --clay-pink: #F5B1C9;
+    --clay-mint: #B9E3C4;
+    --clay-yellow: #F5DA8B;
+    --clay-brown: #563829;
+    --clay-gold: #C6A15B;
+    --text-primary: #242322;
+    --text-secondary: #6E5444;
+  }
+
+  body {
+    background-color: #FFF3E5;
+    color: #242322;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    overflow-x: hidden;
+    line-height: 1.5;
+  }
+
+  h1, h2, h3, h4, h5, h6, .font-heading {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    letter-spacing: -0.025em;
+  }
+
+  input, textarea, select, button {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+::-webkit-scrollbar-track {
+  background: #FFF3E5;
+}
+::-webkit-scrollbar-thumb {
+  background: #E8D6C4;
+  border-radius: 9999px;
+  border: 2px solid #FFF3E5;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #C6A15B;
+}
+
+/* -------------------------------------------------------------
+   REFINED SOFT 3D CLAYMORPHISM DESIGN SYSTEM
+   ------------------------------------------------------------- */
+
+/* 1. Base Surfaces */
+.clay-card-ivory, .clay-surface-ivory {
+  background: #FFFAF4;
+  box-shadow: 
+    inset 2px 2px 4px rgba(255, 255, 255, 0.95),
+    inset -2px -2px 5px rgba(86, 56, 41, 0.05),
+    0 16px 36px -8px rgba(86, 56, 41, 0.09),
+    0 4px 12px rgba(86, 56, 41, 0.03);
+}
+
+.clay-card-cream {
+  background: #FFF8EE;
+  box-shadow: 
+    inset 2px 2px 5px rgba(255, 255, 255, 0.95),
+    inset -2px -2px 5px rgba(86, 56, 41, 0.05),
+    0 14px 32px -8px rgba(86, 56, 41, 0.08),
+    0 4px 10px rgba(86, 56, 41, 0.03);
+}
+
+/* 2. Coordinated Rich Pastel Surfaces (Approved Visual Reference) */
+.clay-pastel-lavender, .clay-card-lavender {
+  background: linear-gradient(145deg, #F0E6FD 0%, #E4D3F9 100%);
+  box-shadow: 
+    inset 2px 2px 5px rgba(255, 255, 255, 0.9),
+    inset -2px -2px 5px rgba(125, 85, 175, 0.12),
+    0 16px 32px -8px rgba(175, 134, 230, 0.32),
+    0 4px 12px rgba(86, 56, 41, 0.04);
+}
+
+.clay-pastel-mint, .clay-card-mint {
+  background: linear-gradient(145deg, #E6F8EB 0%, #D1F1D9 100%);
+  box-shadow: 
+    inset 2px 2px 5px rgba(255, 255, 255, 0.9),
+    inset -2px -2px 5px rgba(50, 130, 75, 0.1),
+    0 16px 32px -8px rgba(135, 205, 155, 0.32),
+    0 4px 12px rgba(86, 56, 41, 0.04);
+}
+
+.clay-pastel-pink, .clay-card-pink {
+  background: linear-gradient(145deg, #FDE6EE 0%, #F8CFDC 100%);
+  box-shadow: 
+    inset 2px 2px 5px rgba(255, 255, 255, 0.9),
+    inset -2px -2px 5px rgba(180, 70, 110, 0.1),
+    0 16px 32px -8px rgba(240, 150, 180, 0.32),
+    0 4px 12px rgba(86, 56, 41, 0.04);
+}
+
+.clay-pastel-yellow, .clay-card-yellow {
+  background: linear-gradient(145deg, #FEF5D5 0%, #FBE9B2 100%);
+  box-shadow: 
+    inset 2px 2px 5px rgba(255, 255, 255, 0.95),
+    inset -2px -2px 5px rgba(160, 120, 20, 0.1),
+    0 16px 32px -8px rgba(235, 195, 95, 0.32),
+    0 4px 12px rgba(86, 56, 41, 0.04);
+}
+
+.clay-pastel-gold {
+  background: linear-gradient(145deg, #FFF6E7 0%, #FAEDD4 100%);
+  box-shadow: 
+    inset 2px 2px 5px rgba(255, 255, 255, 0.95),
+    inset -2px -2px 5px rgba(198, 161, 91, 0.15),
+    0 16px 32px -8px rgba(198, 161, 91, 0.28),
+    0 4px 12px rgba(86, 56, 41, 0.04);
+}
+
+/* 3. Floating Capsule Navbar */
+.clay-nav-capsule {
+  background: rgba(255, 250, 244, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 
+    inset 2px 2px 6px rgba(255, 255, 255, 0.95),
+    inset -2px -2px 6px rgba(86, 56, 41, 0.04),
+    0 16px 36px -10px rgba(86, 56, 41, 0.12),
+    0 4px 14px rgba(86, 56, 41, 0.03);
+}
+
+/* 4. Raised Lavender Action Buttons */
+.clay-btn-lavender {
+  background: linear-gradient(135deg, #DFCAFA 0%, #CCA8F4 100%);
+  color: #242322;
+  box-shadow: 
+    inset 2px 2px 4px rgba(255, 255, 255, 0.8),
+    inset -2px -2px 4px rgba(86, 56, 41, 0.14),
+    0 8px 20px -4px rgba(195, 155, 240, 0.5);
+  transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.clay-btn-lavender:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    inset 2px 2px 4px rgba(255, 255, 255, 0.9),
+    inset -2px -2px 4px rgba(86, 56, 41, 0.18),
+    0 12px 26px -4px rgba(195, 155, 240, 0.65);
+}
+.clay-btn-lavender:active {
+  transform: translateY(1px);
+}
+
+.clay-btn-gold {
+  background: linear-gradient(135deg, #E6C585 0%, #C6A15B 100%);
+  color: #242322;
+  box-shadow: 
+    inset 2px 2px 4px rgba(255, 255, 255, 0.7),
+    inset -2px -2px 4px rgba(86, 56, 41, 0.16),
+    0 8px 18px -4px rgba(198, 161, 91, 0.4);
+  transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.clay-btn-gold:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    inset 2px 2px 4px rgba(255, 255, 255, 0.85),
+    inset -2px -2px 4px rgba(86, 56, 41, 0.2),
+    0 12px 24px -4px rgba(198, 161, 91, 0.52);
+}
+.clay-btn-gold:active {
+  transform: translateY(1px);
+}
+
+.clay-btn-soft {
+  background: #FFFAF4;
+  color: #563829;
+  box-shadow: 
+    inset 2px 2px 4px rgba(255, 255, 255, 0.95),
+    inset -2px -2px 4px rgba(86, 56, 41, 0.05),
+    0 6px 16px -4px rgba(86, 56, 41, 0.08);
+  transition: all 0.2s ease;
+}
+.clay-btn-soft:hover {
+  transform: translateY(-2px);
+  background: #FFFFFF;
+  color: #242322;
+  box-shadow: 
+    inset 2px 2px 4px rgba(255, 255, 255, 1),
+    inset -2px -2px 4px rgba(86, 56, 41, 0.07),
+    0 10px 22px -4px rgba(86, 56, 41, 0.12);
+}
+
+/* 5. Inset Soft Badge */
+.clay-badge-inset {
+  box-shadow: 
+    inset 1.5px 1.5px 3px rgba(86, 56, 41, 0.08),
+    inset -1.5px -1.5px 3px rgba(255, 255, 255, 0.85);
+}
+
+/* 6. Clay Sculpture Floats */
+@keyframes softFloat {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(2deg); }
+}
+
+@keyframes softFloatSlow {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(8px) rotate(-2deg); }
+}
+
+.animate-clay-float {
+  animation: softFloat 6s ease-in-out infinite;
+}
+
+.animate-clay-float-slow {
+  animation: softFloatSlow 9s ease-in-out infinite;
+}
