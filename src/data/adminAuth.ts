@@ -18,28 +18,49 @@ export interface AuthResult {
 }
 
 /**
- * Verifies whether the provided user ID exists in the admin_users table
+ * Verifies whether the provided user ID or email exists in the admin_users table
  */
-export const verifyAdminRole = async (userId: string): Promise<{ isAdmin: boolean; role?: 'admin' | 'super_admin' }> => {
+export const verifyAdminRole = async (
+  userId: string, 
+  email?: string
+): Promise<{ isAdmin: boolean; role?: 'admin' | 'super_admin'; error?: string }> => {
   if (!isSupabaseConfigured) {
-    return { isAdmin: false };
+    return { isAdmin: false, error: 'Supabase is not configured' };
   }
 
   try {
-    const { data, error } = await supabase
-      .from('admin_users')
-      .select('role')
-      .eq('user_id', userId)
-      .maybeSingle();
+    let query = supabase.from('admin_users').select('role, user_id, email');
+    
+    if (email && email.trim()) {
+      query = query.or(`user_id.eq.${userId},email.ilike.${email.trim()}`);
+    } else {
+      query = query.eq('user_id', userId);
+    }
 
-    if (error || !data) {
-      return { isAdmin: false };
+    const { data, error } = await query.maybeSingle();
+
+    if (error) {
+      console.error('[verifyAdminRole] Supabase query error:', error);
+      return { isAdmin: false, error: error.message };
+    }
+
+    if (!data) {
+      console.warn('[verifyAdminRole] No admin_users row found for:', { userId, email });
+      return { isAdmin: false, error: 'Account not found in public.admin_users' };
+    }
+
+    // Auto-link user_id if it was registered with null or different ID
+    if (data.user_id !== userId && email) {
+      await supabase
+        .from('admin_users')
+        .update({ user_id: userId })
+        .ilike('email', email.trim());
     }
 
     return { isAdmin: true, role: data.role };
-  } catch (err) {
+  } catch (err: any) {
     console.error('Failed to verify admin role', err);
-    return { isAdmin: false };
+    return { isAdmin: false, error: err?.message };
   }
 };
 
@@ -75,13 +96,14 @@ export const signInAdmin = async (emailInput: string, passwordInput: string): Pr
       };
     }
 
-    // Enforce admin verification via public.admin_users
-    const { isAdmin, role } = await verifyAdminRole(data.user.id);
+    // Enforce admin verification via public.admin_users (matching by UUID or email)
+    const { isAdmin, role, error: roleError } = await verifyAdminRole(data.user.id, data.user.email || cleanEmail);
     if (!isAdmin) {
       await supabase.auth.signOut();
+      const detail = roleError ? ` (${roleError})` : '';
       return {
         success: false,
-        error: 'Access denied: This account is not registered as an authorized administrator.'
+        error: `Access denied: This account is not registered as an authorized administrator.${detail}`
       };
     }
 
@@ -102,16 +124,22 @@ export const signInAdmin = async (emailInput: string, passwordInput: string): Pr
 };
 
 /**
- * Checks current active session and validates admin role
+ * Checks current active session and validates admin role with live server verification.
+ * Uses getUser() to ensure revoked, expired, or superseded tokens are rejected.
  */
 export const checkIsAdminAuthenticated = async (): Promise<boolean> => {
   if (!isSupabaseConfigured) return false;
 
   try {
-    const { data: { session }, error } = await supabase.auth.getSession();
-    if (error || !session?.user) return false;
+    // Actively validate token against Supabase Auth server (rejects revoked tokens)
+    const { data: { user }, error: userErr } = await supabase.auth.getUser();
+    if (userErr || !user) {
+      // Local token is invalid, expired, or revoked on another device
+      await supabase.auth.signOut({ scope: 'local' });
+      return false;
+    }
 
-    const { isAdmin } = await verifyAdminRole(session.user.id);
+    const { isAdmin } = await verifyAdminRole(user.id, user.email);
     if (!isAdmin) {
       await supabase.auth.signOut();
       return false;
@@ -124,7 +152,7 @@ export const checkIsAdminAuthenticated = async (): Promise<boolean> => {
 };
 
 /**
- * Returns current authenticated admin user details
+ * Returns current authenticated admin user details with live server check
  */
 export const getCurrentAdminUser = async (): Promise<AdminUser | null> => {
   if (!isSupabaseConfigured) return null;
@@ -133,7 +161,7 @@ export const getCurrentAdminUser = async (): Promise<AdminUser | null> => {
     const { data: { user }, error } = await supabase.auth.getUser();
     if (error || !user) return null;
 
-    const { isAdmin, role } = await verifyAdminRole(user.id);
+    const { isAdmin, role } = await verifyAdminRole(user.id, user.email);
     if (!isAdmin) return null;
 
     return {
@@ -149,6 +177,7 @@ export const getCurrentAdminUser = async (): Promise<AdminUser | null> => {
 /**
  * Updates admin password in Supabase Auth
  * Requires re-authentication with current password before allowing password change.
+ * Immediately revokes active sessions on other devices (e.g., laptop/mobile) so they must re-authenticate.
  */
 export const updateAdminPassword = async (
   currentPasswordInput: string,
@@ -192,6 +221,14 @@ export const updateAdminPassword = async (
 
     if (updateError) {
       return { success: false, error: updateError.message || 'Failed to update password.' };
+    }
+
+    // Step 3: Invalidate all other active sessions across other devices
+    // This guarantees that if password was changed on mobile, laptop is signed out immediately!
+    try {
+      await supabase.auth.signOut({ scope: 'others' });
+    } catch (signOutErr) {
+      console.warn('[Supabase Auth] Note on scope:others signout:', signOutErr);
     }
 
     return { success: true };

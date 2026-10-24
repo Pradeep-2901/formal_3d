@@ -343,16 +343,115 @@ export const INITIAL_PRODUCTS: AdminProduct[] = [
   }
 ];
 
+import { supabase, isSupabaseConfigured } from '../lib/supabase';
+
 const STORAGE_KEY_PRODUCTS = 'formel3d_admin_products_v4';
 const STORAGE_KEY_CATEGORIES = 'formel3d_admin_categories_v4';
 const STORAGE_KEY_ENQUIRIES = 'formel3d_customization_enquiries_v4';
+
+// ====================================================================
+// Database Mapping Helpers
+// ====================================================================
+
+export const mapDbToProduct = (row: any): AdminProduct => ({
+  id: row.id,
+  name: row.name,
+  subtitle: row.subtitle || '',
+  category: row.category,
+  description: row.description || '',
+  images: Array.isArray(row.images) && row.images.length > 0 ? row.images : ['/images/products/unicorn_name_stand.svg'],
+  videoUrl: row.video_url || '',
+  isCustomizable: Boolean(row.is_customizable),
+  status: row.status === 'draft' ? 'draft' : 'published',
+  specs: row.specs && typeof row.specs === 'object' ? row.specs : undefined,
+  features: Array.isArray(row.features) ? row.features : [],
+  badge: row.badge || undefined,
+  isFeatured: Boolean(row.is_featured),
+  createdAt: row.created_at ? new Date(row.created_at).toISOString().split('T')[0] : '2026-10-12'
+});
+
+export const mapProductToDb = (prod: AdminProduct) => ({
+  id: prod.id,
+  name: prod.name,
+  subtitle: prod.subtitle || '',
+  category: prod.category,
+  description: prod.description || '',
+  images: prod.images || [],
+  video_url: prod.videoUrl || '',
+  is_customizable: Boolean(prod.isCustomizable),
+  status: prod.status || 'published',
+  specs: prod.specs || {},
+  features: prod.features || [],
+  badge: prod.badge || '',
+  is_featured: Boolean(prod.isFeatured),
+  created_at: prod.createdAt ? new Date(prod.createdAt).toISOString() : new Date().toISOString()
+});
+
+export const mapDbToCategory = (row: any): AdminCategory => ({
+  id: row.id,
+  name: row.name,
+  description: row.description || '',
+  image: row.image,
+  videoUrl: row.video_url || '',
+  accentColor: row.accent_color || '#D3B8F5',
+  tag: row.tag || '',
+  itemCount: typeof row.item_count === 'number' ? row.item_count : 0
+});
+
+export const mapCategoryToDb = (cat: AdminCategory) => ({
+  id: cat.id,
+  name: cat.name,
+  description: cat.description || '',
+  image: cat.image,
+  video_url: cat.videoUrl || '',
+  accent_color: cat.accentColor || '#D3B8F5',
+  tag: cat.tag || '',
+  item_count: cat.itemCount || 0
+});
+
+export const mapDbToEnquiry = (row: any): CustomizationEnquiry => ({
+  id: row.id,
+  productId: row.product_id || '',
+  productName: row.product_name,
+  printedName: row.printed_name,
+  nameLength: row.name_length || row.printed_name?.length || 0,
+  isLongNameReview: Boolean(row.is_long_name_review),
+  deliveryAddress: row.delivery_address,
+  phoneNumber: row.phone_number,
+  pincode: row.pincode,
+  themeType: row.theme_type || 'custom',
+  themeDescription: row.theme_description || '',
+  penholder: row.penholder === 'yes' ? 'yes' : 'no',
+  additionalRequirements: row.additional_requirements || undefined,
+  createdAt: row.created_at || new Date().toISOString()
+});
+
+export const mapEnquiryToDb = (enq: CustomizationEnquiry) => ({
+  id: enq.id,
+  product_id: enq.productId || null,
+  product_name: enq.productName,
+  printed_name: enq.printedName,
+  name_length: enq.nameLength || enq.printedName.length,
+  is_long_name_review: Boolean(enq.isLongNameReview),
+  delivery_address: enq.deliveryAddress,
+  phone_number: enq.phoneNumber,
+  pincode: enq.pincode,
+  theme_type: enq.themeType,
+  theme_description: enq.themeDescription,
+  penholder: enq.penholder,
+  additional_requirements: enq.additionalRequirements || null,
+  created_at: enq.createdAt || new Date().toISOString()
+});
+
+// ====================================================================
+// Synchronous Local Storage Operations (Instant Render & Offline Fallback)
+// ====================================================================
 
 export const loadAdminProducts = (): AdminProduct[] => {
   try {
     const raw = localStorage.getItem(STORAGE_KEY_PRODUCTS);
     if (raw) {
       const parsed: AdminProduct[] = JSON.parse(raw);
-      // Migrate any old dark JPG references if present
       let hasChanges = false;
       const sanitized = parsed.map(prod => {
         const updatedImages = prod.images.map(img => {
@@ -430,7 +529,6 @@ export const loadEnquiries = (): CustomizationEnquiry[] => {
   try {
     const raw = localStorage.getItem(STORAGE_KEY_ENQUIRIES);
     if (raw) return JSON.parse(raw);
-    // Backward compatibility with v3
     const legacy = localStorage.getItem('formel3d_customization_enquiries_v3');
     if (legacy) return JSON.parse(legacy);
   } catch (e) {
@@ -442,9 +540,245 @@ export const loadEnquiries = (): CustomizationEnquiry[] => {
 export const saveEnquiry = (enquiry: CustomizationEnquiry) => {
   try {
     const existing = loadEnquiries();
-    const updated = [enquiry, ...existing];
+    const updated = [enquiry, ...existing.filter(e => e.id !== enquiry.id)];
     localStorage.setItem(STORAGE_KEY_ENQUIRIES, JSON.stringify(updated));
   } catch (e) {
-    console.error('Failed to save enquiry', e);
+    console.error('Failed to save enquiry to localStorage', e);
   }
+
+  // Asynchronously dispatch to Supabase PostgreSQL table so enquiries are shared across devices
+  if (isSupabaseConfigured) {
+    (async () => {
+      try {
+        const { error } = await supabase
+          .from('customization_enquiries')
+          .upsert(mapEnquiryToDb(enquiry));
+        if (error) {
+          console.warn('[Supabase] Failed to write enquiry to cloud database:', error.message);
+        }
+      } catch (err) {
+        console.warn('[Supabase] Cloud enquiry write error:', err);
+      }
+    })();
+  }
+};
+
+// ====================================================================
+// Cloud Asynchronous Operations (Supabase PostgreSQL Synchronized)
+// ====================================================================
+
+/**
+ * Fetches products from Supabase PostgreSQL with local cache fallback
+ */
+export const fetchProductsFromCloud = async (): Promise<AdminProduct[]> => {
+  if (!isSupabaseConfigured) {
+    return loadAdminProducts();
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (!error && data && data.length > 0) {
+      const mapped = data.map(mapDbToProduct);
+      saveAdminProducts(mapped);
+      return mapped;
+    } else if (error) {
+      console.warn('[Supabase] Products query notice:', error.message);
+    }
+  } catch (err) {
+    console.warn('[Supabase] Products fetch error, using local fallback:', err);
+  }
+
+  return loadAdminProducts();
+};
+
+/**
+ * Fetches categories from Supabase PostgreSQL with local cache fallback
+ */
+export const fetchCategoriesFromCloud = async (): Promise<AdminCategory[]> => {
+  if (!isSupabaseConfigured) {
+    return loadAdminCategories();
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('categories')
+      .select('*')
+      .order('name', { ascending: true });
+
+    if (!error && data && data.length > 0) {
+      const mapped = data.map(mapDbToCategory);
+      saveAdminCategories(mapped);
+      return mapped;
+    } else if (error) {
+      console.warn('[Supabase] Categories query notice:', error.message);
+    }
+  } catch (err) {
+    console.warn('[Supabase] Categories fetch error, using local fallback:', err);
+  }
+
+  return loadAdminCategories();
+};
+
+/**
+ * Fetches customer enquiries from Supabase PostgreSQL with local cache fallback
+ */
+export const fetchEnquiriesFromCloud = async (): Promise<CustomizationEnquiry[]> => {
+  if (!isSupabaseConfigured) {
+    return loadEnquiries();
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('customization_enquiries')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (!error && data) {
+      const mapped = data.map(mapDbToEnquiry);
+      localStorage.setItem(STORAGE_KEY_ENQUIRIES, JSON.stringify(mapped));
+      return mapped;
+    }
+  } catch (err) {
+    console.warn('[Supabase] Enquiries fetch error, using local fallback:', err);
+  }
+
+  return loadEnquiries();
+};
+
+/**
+ * Persists a product to Supabase PostgreSQL and updates local cache
+ */
+export const saveProductCloud = async (product: AdminProduct): Promise<{ success: boolean; error?: string }> => {
+  // Update local cache first
+  const currentProds = loadAdminProducts();
+  const existingIdx = currentProds.findIndex(p => p.id === product.id);
+  const updated = existingIdx >= 0
+    ? currentProds.map(p => p.id === product.id ? product : p)
+    : [product, ...currentProds];
+  saveAdminProducts(updated);
+
+  if (isSupabaseConfigured) {
+    try {
+      const { error } = await supabase
+        .from('products')
+        .upsert(mapProductToDb(product));
+
+      if (error) {
+        console.error('[Supabase] Failed to save product to cloud:', error);
+        return { success: false, error: error.message };
+      }
+    } catch (err: any) {
+      console.error('[Supabase] Product save exception:', err);
+      return { success: false, error: err?.message || 'Failed to save to cloud database.' };
+    }
+  }
+
+  return { success: true };
+};
+
+/**
+ * Deletes a product from Supabase PostgreSQL and updates local cache
+ */
+export const deleteProductCloud = async (productId: string): Promise<{ success: boolean; error?: string }> => {
+  const currentProds = loadAdminProducts();
+  const updated = currentProds.filter(p => p.id !== productId);
+  saveAdminProducts(updated);
+
+  if (isSupabaseConfigured) {
+    try {
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', productId);
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+    } catch (err: any) {
+      return { success: false, error: err?.message || 'Failed to delete from cloud database.' };
+    }
+  }
+
+  return { success: true };
+};
+
+/**
+ * Persists a category to Supabase PostgreSQL and updates local cache
+ */
+export const saveCategoryCloud = async (category: AdminCategory): Promise<{ success: boolean; error?: string }> => {
+  const currentCats = loadAdminCategories();
+  const existingIdx = currentCats.findIndex(c => c.id === category.id);
+  const updated = existingIdx >= 0
+    ? currentCats.map(c => c.id === category.id ? category : c)
+    : [...currentCats, category];
+  saveAdminCategories(updated);
+
+  if (isSupabaseConfigured) {
+    try {
+      const { error } = await supabase
+        .from('categories')
+        .upsert(mapCategoryToDb(category));
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+    } catch (err: any) {
+      return { success: false, error: err?.message || 'Failed to save category to cloud database.' };
+    }
+  }
+
+  return { success: true };
+};
+
+/**
+ * Deletes a category from Supabase PostgreSQL and updates local cache
+ */
+export const deleteCategoryCloud = async (categoryId: string): Promise<{ success: boolean; error?: string }> => {
+  const currentCats = loadAdminCategories();
+  const updated = currentCats.filter(c => c.id !== categoryId);
+  saveAdminCategories(updated);
+
+  if (isSupabaseConfigured) {
+    try {
+      const { error } = await supabase
+        .from('categories')
+        .delete()
+        .eq('id', categoryId);
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+    } catch (err: any) {
+      return { success: false, error: err?.message || 'Failed to delete category from cloud database.' };
+    }
+  }
+
+  return { success: true };
+};
+
+/**
+ * Submits a customer customization enquiry to Supabase with local fallback
+ */
+export const submitEnquiryCloud = async (enquiry: CustomizationEnquiry): Promise<{ success: boolean; error?: string }> => {
+  saveEnquiry(enquiry);
+
+  if (isSupabaseConfigured) {
+    try {
+      const { error } = await supabase
+        .from('customization_enquiries')
+        .upsert(mapEnquiryToDb(enquiry));
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+    } catch (err: any) {
+      return { success: false, error: err?.message || 'Failed to submit enquiry to cloud.' };
+    }
+  }
+
+  return { success: true };
 };

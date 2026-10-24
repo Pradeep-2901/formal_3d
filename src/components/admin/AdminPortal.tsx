@@ -9,6 +9,8 @@ import {
   loadAdminProducts, saveAdminProducts, 
   loadAdminCategories, saveAdminCategories, 
   loadEnquiries,
+  fetchProductsFromCloud, fetchCategoriesFromCloud, fetchEnquiriesFromCloud,
+  saveProductCloud, deleteProductCloud, saveCategoryCloud, deleteCategoryCloud,
   INITIAL_PRODUCTS, INITIAL_CATEGORIES 
 } from '../../data/adminStorage';
 import { 
@@ -85,13 +87,15 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit }) => {
       if (event === 'SIGNED_OUT' || !session) {
         setIsAuthenticated(false);
         setCurrentAdmin(null);
-      } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+      } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
         const authed = await checkIsAdminAuthenticated();
         if (isMounted) {
           setIsAuthenticated(authed);
           if (authed) {
             const admin = await getCurrentAdminUser();
             if (isMounted) setCurrentAdmin(admin);
+          } else {
+            setCurrentAdmin(null);
           }
         }
       }
@@ -103,7 +107,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit }) => {
     };
   }, []);
 
-  // Load data on mount
+  // Load data on mount: immediate local cache load followed by cloud synchronization
   useEffect(() => {
     const prods = loadAdminProducts();
     const cats = loadAdminCategories();
@@ -111,6 +115,25 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit }) => {
     setProducts(prods);
     setCategories(cats);
     setEnquiries(enqs);
+
+    // Live background sync from Supabase PostgreSQL
+    fetchProductsFromCloud().then(cloudProds => {
+      if (cloudProds && cloudProds.length > 0) {
+        setProducts(cloudProds);
+      }
+    });
+
+    fetchCategoriesFromCloud().then(cloudCats => {
+      if (cloudCats && cloudCats.length > 0) {
+        setCategories(cloudCats);
+      }
+    });
+
+    fetchEnquiriesFromCloud().then(cloudEnqs => {
+      if (cloudEnqs) {
+        setEnquiries(cloudEnqs);
+      }
+    });
   }, []);
 
   const syncCategoryCounts = (prods: AdminProduct[], cats: AdminCategory[]) => {
@@ -121,7 +144,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit }) => {
   };
 
   // Product CRUD
-  const handleSaveProduct = (product: AdminProduct) => {
+  const handleSaveProduct = async (product: AdminProduct) => {
     const isEdit = products.some(p => p.id === product.id);
     let updatedProducts: AdminProduct[];
 
@@ -131,17 +154,16 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit }) => {
       updatedProducts = [product, ...products];
     }
 
-    const saveResult = saveAdminProducts(updatedProducts);
-    if (!saveResult.success) {
-      showToast(saveResult.error || 'Failed to save product due to storage quota limitations.');
-      return;
-    }
-
     setProducts(updatedProducts);
-    if (product.status === 'published') {
-      showToast(isEdit ? `Updated & published "${product.name}" live on storefront.` : `Published creation "${product.name}" live on storefront!`);
+    const saveResult = await saveProductCloud(product);
+    if (!saveResult.success) {
+      showToast(saveResult.error || 'Failed to save product to cloud.');
     } else {
-      showToast(isEdit ? `Updated "${product.name}" (saved as private draft).` : `Saved creation "${product.name}" as private draft.`);
+      if (product.status === 'published') {
+        showToast(isEdit ? `Updated & published "${product.name}" live.` : `Published creation "${product.name}" live!`);
+      } else {
+        showToast(isEdit ? `Updated "${product.name}" (saved as private draft).` : `Saved creation "${product.name}" as private draft.`);
+      }
     }
 
     const updatedCats = syncCategoryCounts(updatedProducts, categories);
@@ -158,29 +180,29 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit }) => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleDuplicateProduct = (product: AdminProduct) => {
+  const handleDuplicateProduct = async (product: AdminProduct) => {
     const duplicate: AdminProduct = {
       ...product,
       id: `prod-${Date.now()}`,
       name: `${product.name} (Copy)`,
-      status: 'draft', // Duplicates start as drafts
+      status: 'draft',
       createdAt: new Date().toISOString().split('T')[0]
     };
     const updated = [duplicate, ...products];
-    const saveResult = saveAdminProducts(updated);
+    setProducts(updated);
+    const saveResult = await saveProductCloud(duplicate);
     if (!saveResult.success) {
       showToast(saveResult.error || 'Failed to duplicate product.');
       return;
     }
 
-    setProducts(updated);
     showToast(`Duplicated "${product.name}" as draft.`);
   };
 
-  const handleDeleteProduct = (productId: string) => {
+  const handleDeleteProduct = async (productId: string) => {
     const updated = products.filter(p => p.id !== productId);
     setProducts(updated);
-    saveAdminProducts(updated);
+    await deleteProductCloud(productId);
 
     const updatedCats = syncCategoryCounts(updated, categories);
     setCategories(updatedCats);
@@ -189,29 +211,29 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit }) => {
     showToast('Product removed.');
   };
 
-  const handleToggleProductStatus = (productId: string) => {
+  const handleToggleProductStatus = async (productId: string) => {
     let targetName = '';
     let targetStatus: 'published' | 'draft' = 'published';
+    let targetProduct: AdminProduct | null = null;
 
     const updated = products.map(p => {
       if (p.id === productId) {
         targetName = p.name;
         targetStatus = p.status === 'published' ? 'draft' : 'published';
-        return {
+        targetProduct = {
           ...p,
           status: targetStatus
         };
+        return targetProduct;
       }
       return p;
     });
 
-    const saveResult = saveAdminProducts(updated);
-    if (!saveResult.success) {
-      showToast(saveResult.error || 'Failed to update product visibility.');
-      return;
+    setProducts(updated);
+    if (targetProduct) {
+      await saveProductCloud(targetProduct);
     }
 
-    setProducts(updated);
     const updatedCats = syncCategoryCounts(updated, categories);
     setCategories(updatedCats);
     saveAdminCategories(updatedCats);
@@ -224,29 +246,32 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit }) => {
   };
 
   // Category CRUD
-  const handleAddCategory = (category: AdminCategory) => {
+  const handleAddCategory = async (category: AdminCategory) => {
     const updatedCats = [...categories, category];
     setCategories(updatedCats);
-    saveAdminCategories(updatedCats);
+    await saveCategoryCloud(category);
     showToast(`Category "${category.name}" created.`);
   };
 
-  const handleUpdateCategory = (category: AdminCategory) => {
+  const handleUpdateCategory = async (category: AdminCategory) => {
     const updatedCats = categories.map(c => c.id === category.id ? category : c);
     setCategories(updatedCats);
-    saveAdminCategories(updatedCats);
+    await saveCategoryCloud(category);
     showToast(`Category "${category.name}" updated.`);
   };
 
-  const handleDeleteCategory = (categoryId: string) => {
-    if (categories.length <= 1) {
-      alert('You must have at least one category.');
+  const handleDeleteCategory = async (categoryId: string) => {
+    // Check if products exist in category
+    const hasProducts = products.some(p => p.category === categoryId);
+    if (hasProducts) {
+      showToast('Cannot delete category: creations are currently assigned to it.');
       return;
     }
+
     const updatedCats = categories.filter(c => c.id !== categoryId);
     setCategories(updatedCats);
-    saveAdminCategories(updatedCats);
-    showToast('Category removed.');
+    await deleteCategoryCloud(categoryId);
+    showToast('Category deleted.');
   };
 
   // Reset to default data

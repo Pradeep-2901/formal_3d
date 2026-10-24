@@ -80,14 +80,54 @@ export const isSupportedVideoType = (mimeType: string, filename = ''): boolean =
  */
 export const MAX_VIDEO_SIZE_BYTES = 50 * 1024 * 1024; // 50MB
 
+import { supabase, isSupabaseConfigured } from '../lib/supabase';
+
 /**
- * Save a video or binary media file to IndexedDB.
- * Returns an internal URI: 'indexeddb://' + id and a ready-to-play Object URL.
+ * Save a video or binary media file to Supabase Storage (product-media bucket)
+ * with graceful fallback to client-side IndexedDB if Supabase is offline or unconfigured.
+ * Returns an accessible public URL or an internal indexeddb:// URI.
  */
 export const saveMediaFile = async (
   file: File | Blob, 
   customName?: string
 ): Promise<{ mediaId: string; mediaUri: string; blobUrl: string }> => {
+  // Attempt 1: Upload to Supabase Storage if configured
+  if (isSupabaseConfigured) {
+    try {
+      const originalName = file instanceof File ? file.name : 'media_upload';
+      const cleanName = (customName || originalName).replace(/[^a-zA-Z0-9._-]/g, '_');
+      const filePath = `uploads/${Date.now()}_${cleanName}`;
+      const contentType = file.type || 'application/octet-stream';
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('product-media')
+        .upload(filePath, file, {
+          contentType,
+          cacheControl: '3600',
+          upsert: true
+        });
+
+      if (!uploadError && uploadData) {
+        const { data: publicUrlData } = supabase.storage
+          .from('product-media')
+          .getPublicUrl(uploadData.path);
+
+        if (publicUrlData?.publicUrl) {
+          return {
+            mediaId: uploadData.path,
+            mediaUri: publicUrlData.publicUrl,
+            blobUrl: publicUrlData.publicUrl
+          };
+        }
+      } else if (uploadError) {
+        console.warn('[Supabase Storage] Upload error, using IndexedDB fallback:', uploadError.message);
+      }
+    } catch (err) {
+      console.warn('[Supabase Storage] Cloud upload exception, using local fallback:', err);
+    }
+  }
+
+  // Attempt 2: Fallback to local IndexedDB
   const db = await getMediaDB();
   const id = `media_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
   const record: StoredMediaRecord = {

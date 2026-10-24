@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { Navbar, NavPage } from './components/layout/Navbar';
 import { HeroSection } from './components/home/HeroSection';
 import { CollectionsGrid } from './components/home/CollectionsGrid';
@@ -10,11 +10,18 @@ import { CollectionsPage } from './components/pages/CollectionsPage';
 import { CustomizePage } from './components/pages/CustomizePage';
 import { OurStoryPage } from './components/pages/OurStoryPage';
 import { ContactPage } from './components/pages/ContactPage';
-import { AdminPortal } from './components/admin/AdminPortal';
 import { ProductDetailModal } from './components/modals/ProductDetailModal';
 import { CustomizationModal } from './components/modals/CustomizationModal';
-import { loadAdminProducts, loadAdminCategories } from './data/adminStorage';
+import { 
+  loadAdminProducts, loadAdminCategories, 
+  fetchProductsFromCloud, fetchCategoriesFromCloud 
+} from './data/adminStorage';
 import { AdminProduct, AdminCategory } from './types/admin';
+
+// Code-split AdminPortal so standard storefront visitors don't download admin code
+const AdminPortal = lazy(() =>
+  import('./components/admin/AdminPortal').then(m => ({ default: m.AdminPortal }))
+);
 
 export const App: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<NavPage>('home');
@@ -35,7 +42,22 @@ export const App: React.FC = () => {
   };
 
   useEffect(() => {
+    // 1. Instant render from local cache
     refreshData();
+
+    // 2. Background sync from Supabase PostgreSQL
+    fetchProductsFromCloud().then(cloudProds => {
+      if (cloudProds && cloudProds.length > 0) {
+        setProducts(cloudProds);
+      }
+    });
+
+    fetchCategoriesFromCloud().then(cloudCats => {
+      if (cloudCats && cloudCats.length > 0) {
+        setCategories(cloudCats);
+      }
+    });
+
     const handleStorageUpdate = () => refreshData();
     window.addEventListener('formel3d_products_updated', handleStorageUpdate);
     window.addEventListener('storage', handleStorageUpdate);
@@ -94,17 +116,31 @@ export const App: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Dedicated full-screen Admin portal
+  // Dedicated full-screen Admin portal with code-splitting
   if (currentPage === 'admin') {
     return (
-      <AdminPortal 
-        onExit={() => {
-          window.location.hash = '';
-          setCurrentPage('home');
-          refreshData();
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }} 
-      />
+      <Suspense fallback={
+        <div className="min-h-screen bg-[#FFF3E5] flex items-center justify-center p-6 text-[#242322]">
+          <div className="clay-card-ivory p-8 rounded-3xl border-2 border-white shadow-lg text-center space-y-4">
+            <div className="w-12 h-12 mx-auto rounded-2xl bg-[#080A0A] border-2 border-[#C6A15B] flex items-center justify-center animate-pulse">
+              <svg viewBox="0 0 24 24" className="w-6 h-6 text-[#C6A15B]" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M12 2L2 7l10 5 10-5-10-5z" fill="rgba(198,161,91,0.25)" />
+                <path d="M2 17l10 5 10-5M2 12l10 5 10-5" />
+              </svg>
+            </div>
+            <p className="text-xs font-bold uppercase tracking-wider text-[#C6A15B]">Loading Studio Admin...</p>
+          </div>
+        </div>
+      }>
+        <AdminPortal 
+          onExit={() => {
+            window.location.hash = '';
+            setCurrentPage('home');
+            refreshData();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }} 
+        />
+      </Suspense>
     );
   }
 
