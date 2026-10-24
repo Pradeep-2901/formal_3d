@@ -8,6 +8,7 @@ import { supabase, isSupabaseConfigured } from '../lib/supabase';
 export interface AdminUser {
   id: string;
   email: string;
+  username?: string;
   role: 'admin' | 'super_admin';
 }
 
@@ -18,24 +19,71 @@ export interface AuthResult {
 }
 
 /**
- * Verifies whether the provided user ID or email exists in the admin_users table
+ * Resolves a username (or email) to the registered Supabase Auth email.
+ * If input contains '@', it is already an email format.
+ * If input is a username, it resolves via public.admin_users mapping or virtual domain.
+ */
+export const resolveUsernameToEmail = async (identifier: string): Promise<string> => {
+  const clean = identifier.trim();
+  if (clean.includes('@')) {
+    return clean;
+  }
+
+  // 1. Try querying the RPC function or admin_users table for matching username
+  if (isSupabaseConfigured) {
+    try {
+      // First attempt: Call security definer RPC function if created
+      const { data: rpcEmail, error: rpcErr } = await supabase
+        .rpc('get_admin_email_by_username', { p_username: clean });
+
+      if (!rpcErr && rpcEmail && typeof rpcEmail === 'string' && rpcEmail.includes('@')) {
+        return rpcEmail;
+      }
+
+      // Second attempt: Direct query on admin_users table
+      const { data, error } = await supabase
+        .from('admin_users')
+        .select('email')
+        .or(`username.ilike.${clean},email.ilike.${clean}@%`)
+        .limit(1)
+        .maybeSingle();
+
+      if (!error && data?.email) {
+        return data.email;
+      }
+    } catch (err) {
+      console.warn('[resolveUsernameToEmail] Resolution notice:', err);
+    }
+  }
+
+  // Default virtual email format for username-only accounts
+  return `${clean.toLowerCase()}@formel3d.com`;
+};
+
+/**
+ * Verifies whether the provided user ID, email, or username exists in the admin_users table
  */
 export const verifyAdminRole = async (
   userId: string, 
-  email?: string
-): Promise<{ isAdmin: boolean; role?: 'admin' | 'super_admin'; error?: string }> => {
+  email?: string,
+  username?: string
+): Promise<{ isAdmin: boolean; role?: 'admin' | 'super_admin'; username?: string; error?: string }> => {
   if (!isSupabaseConfigured) {
     return { isAdmin: false, error: 'Supabase is not configured' };
   }
 
   try {
-    let query = supabase.from('admin_users').select('role, user_id, email');
+    let query = supabase.from('admin_users').select('role, user_id, email, username');
     
+    const conditions: string[] = [`user_id.eq.${userId}`];
     if (email && email.trim()) {
-      query = query.or(`user_id.eq.${userId},email.ilike.${email.trim()}`);
-    } else {
-      query = query.eq('user_id', userId);
+      conditions.push(`email.ilike.${email.trim()}`);
     }
+    if (username && username.trim()) {
+      conditions.push(`username.ilike.${username.trim()}`);
+    }
+
+    query = query.or(conditions.join(','));
 
     const { data, error } = await query.maybeSingle();
 
@@ -45,11 +93,11 @@ export const verifyAdminRole = async (
     }
 
     if (!data) {
-      console.warn('[verifyAdminRole] No admin_users row found for:', { userId, email });
-      return { isAdmin: false, error: 'Account not found in public.admin_users' };
+      console.warn('[verifyAdminRole] No admin_users row found for:', { userId, email, username });
+      return { isAdmin: false, error: 'Account not registered in public.admin_users' };
     }
 
-    // Auto-link user_id if it was registered with null or different ID
+    // Auto-link user_id or username if missing
     if (data.user_id !== userId && email) {
       await supabase
         .from('admin_users')
@@ -57,7 +105,13 @@ export const verifyAdminRole = async (
         .ilike('email', email.trim());
     }
 
-    return { isAdmin: true, role: data.role };
+    const resolvedUsername = data.username || (data.email ? data.email.split('@')[0] : 'admin');
+
+    return { 
+      isAdmin: true, 
+      role: data.role, 
+      username: resolvedUsername 
+    };
   } catch (err: any) {
     console.error('Failed to verify admin role', err);
     return { isAdmin: false, error: err?.message };
@@ -65,10 +119,10 @@ export const verifyAdminRole = async (
 };
 
 /**
- * Sign in admin with Supabase email & password
+ * Sign in admin with Username (or Email) and password
  * Enforces admin authorization: if user is not in admin_users, signs them out and denies access.
  */
-export const signInAdmin = async (emailInput: string, passwordInput: string): Promise<AuthResult> => {
+export const signInAdmin = async (identifierInput: string, passwordInput: string): Promise<AuthResult> => {
   if (!isSupabaseConfigured) {
     return {
       success: false,
@@ -76,28 +130,51 @@ export const signInAdmin = async (emailInput: string, passwordInput: string): Pr
     };
   }
 
-  const cleanEmail = emailInput.trim();
+  const cleanIdentifier = identifierInput.trim();
   const cleanPassword = passwordInput.trim();
 
-  if (!cleanEmail || !cleanPassword) {
-    return { success: false, error: 'Please enter both email and password.' };
+  if (!cleanIdentifier || !cleanPassword) {
+    return { success: false, error: 'Please enter both username and password.' };
   }
 
   try {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: cleanEmail,
+    // Step 1: Resolve username to corresponding auth email
+    const resolvedEmail = await resolveUsernameToEmail(cleanIdentifier);
+
+    // Step 2: Attempt primary authentication
+    let authRes = await supabase.auth.signInWithPassword({
+      email: resolvedEmail,
       password: cleanPassword
     });
+
+    // If primary failed and identifier was a username without @, also try virtual domain fallback
+    if (authRes.error && !cleanIdentifier.includes('@') && !resolvedEmail.endsWith('@formel3d.com')) {
+      const fallbackEmail = `${cleanIdentifier.toLowerCase()}@formel3d.com`;
+      const fallbackRes = await supabase.auth.signInWithPassword({
+        email: fallbackEmail,
+        password: cleanPassword
+      });
+      if (!fallbackRes.error && fallbackRes.data.user) {
+        authRes = fallbackRes;
+      }
+    }
+
+    const { data, error } = authRes;
 
     if (error || !data.user) {
       return {
         success: false,
-        error: error?.message || 'Invalid email or password. Please try again.'
+        error: error?.message || 'Invalid username or password. Please try again.'
       };
     }
 
-    // Enforce admin verification via public.admin_users (matching by UUID or email)
-    const { isAdmin, role, error: roleError } = await verifyAdminRole(data.user.id, data.user.email || cleanEmail);
+    // Enforce admin verification via public.admin_users (matching by UUID, username, or email)
+    const { isAdmin, role, username, error: roleError } = await verifyAdminRole(
+      data.user.id, 
+      data.user.email || resolvedEmail,
+      cleanIdentifier.includes('@') ? undefined : cleanIdentifier
+    );
+
     if (!isAdmin) {
       await supabase.auth.signOut();
       const detail = roleError ? ` (${roleError})` : '';
@@ -111,7 +188,8 @@ export const signInAdmin = async (emailInput: string, passwordInput: string): Pr
       success: true,
       user: {
         id: data.user.id,
-        email: data.user.email || cleanEmail,
+        email: data.user.email || resolvedEmail,
+        username: username || cleanIdentifier,
         role: role || 'admin'
       }
     };
@@ -131,10 +209,8 @@ export const checkIsAdminAuthenticated = async (): Promise<boolean> => {
   if (!isSupabaseConfigured) return false;
 
   try {
-    // Actively validate token against Supabase Auth server (rejects revoked tokens)
     const { data: { user }, error: userErr } = await supabase.auth.getUser();
     if (userErr || !user) {
-      // Local token is invalid, expired, or revoked on another device
       await supabase.auth.signOut({ scope: 'local' });
       return false;
     }
@@ -161,12 +237,13 @@ export const getCurrentAdminUser = async (): Promise<AdminUser | null> => {
     const { data: { user }, error } = await supabase.auth.getUser();
     if (error || !user) return null;
 
-    const { isAdmin, role } = await verifyAdminRole(user.id, user.email);
+    const { isAdmin, role, username } = await verifyAdminRole(user.id, user.email);
     if (!isAdmin) return null;
 
     return {
       id: user.id,
       email: user.email || '',
+      username: username || (user.email ? user.email.split('@')[0] : 'admin'),
       role: role || 'admin'
     };
   } catch {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { 
-  Lock, Mail, Eye, EyeOff, ArrowLeft, ShieldCheck, 
+  Lock, User, Eye, EyeOff, ArrowLeft, ShieldCheck, 
   AlertCircle, KeyRound 
 } from 'lucide-react';
 import { signInAdmin } from '../../data/adminAuth';
@@ -11,7 +11,7 @@ interface AdminLoginProps {
 }
 
 export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess, onExit }) => {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -21,21 +21,21 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess, onExit }
     e.preventDefault();
     setErrorMessage(null);
 
-    const trimmedEmail = email.trim();
+    const trimmedUsername = username.trim();
     const trimmedPassword = password.trim();
 
-    if (!trimmedEmail || !trimmedPassword) {
-      setErrorMessage('Please enter both email and password.');
+    if (!trimmedUsername || !trimmedPassword) {
+      setErrorMessage('Please enter both username and password.');
       return;
     }
 
     setIsSubmitting(true);
     try {
-      const res = await signInAdmin(trimmedEmail, trimmedPassword);
+      const res = await signInAdmin(trimmedUsername, trimmedPassword);
       if (res.success) {
         onLoginSuccess();
       } else {
-        setErrorMessage(res.error || 'Invalid credentials or unauthorized account.');
+        setErrorMessage(res.error || 'Invalid username or password.');
       }
     } catch (err: any) {
       setErrorMessage(err?.message || 'An unexpected error occurred during authentication.');
@@ -101,23 +101,23 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess, onExit }
         {/* Login Form */}
         <form onSubmit={handleLogin} className="space-y-4">
           
-          {/* Email Field */}
+          {/* Username Field */}
           <div>
-            <label htmlFor="adminEmail" className="block text-xs font-bold text-[#242322] mb-1.5">
-              Admin Email
+            <label htmlFor="adminUsername" className="block text-xs font-bold text-[#242322] mb-1.5">
+              Admin Username
             </label>
             <div className="relative">
-              <Mail className="w-4 h-4 text-[#563829]/50 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <User className="w-4 h-4 text-[#563829]/50 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
-                id="adminEmail"
-                type="email"
-                autoComplete="email"
-                value={email}
+                id="adminUsername"
+                type="text"
+                autoComplete="username"
+                value={username}
                 onChange={(e) => {
-                  setEmail(e.target.value);
+                  setUsername(e.target.value);
                   if (errorMessage) setErrorMessage(null);
                 }}
-                placeholder="admin@formel3d.com"
+                placeholder="Enter admin username"
                 className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border border-[#563829]/20 focus:border-[#C6A15B] focus:ring-2 focus:ring-[#C6A15B]/20 focus:outline-none text-xs text-[#242322] shadow-2xs font-medium transition-all"
                 required
               />

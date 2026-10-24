@@ -56,19 +56,40 @@ Follow these sequential steps to connect your cloud infrastructure and deploy:
 
 ---
 
-### Step 2: Create the Initial Admin User
+### Step 2: Create the Admin User & Configure Username Login
+
+The Admin Portal uses **Username & Password** authentication so that you never have to share or expose your personal email to clients or team members.
 
 1. In your Supabase Dashboard, navigate to **Authentication** -> **Users**.
-2. Click **Add User** -> **Create User**:
+2. If not already created, click **Add User** -> **Create User**:
    * Enter your admin email (e.g., `admin@formel3d.com` or your personal email).
    * Enter your chosen admin password.
    * Check **Auto Confirm User?** -> Click **Create User**.
-3. Copy the generated **User UID** (a UUID like `e3b0c442-98fc-1c14-9af0-...`).
-4. Go to **SQL Editor** and run this query to grant admin authorization:
+3. Open the **SQL Editor** in Supabase and run the following script:
    ```sql
-   insert into public.admin_users (user_id, email, role)
-   values ('YOUR_USER_UID_HERE', 'YOUR_ADMIN_EMAIL_HERE', 'super_admin');
+   -- 1. Enable username column & RPC resolver
+   alter table public.admin_users add column if not exists username text unique;
+   create index if not exists idx_admin_users_username on public.admin_users(lower(username));
+
+   create or replace function public.get_admin_email_by_username(p_username text)
+   returns text language sql security definer set search_path = public stable as $$
+     select email from public.admin_users
+     where lower(trim(username)) = lower(trim(p_username))
+        or lower(trim(email)) = lower(trim(p_username))
+        or lower(trim(split_part(email, '@', 1))) = lower(trim(p_username))
+     limit 1;
+   $$;
+   grant execute on function public.get_admin_email_by_username(text) to anon, authenticated;
+
+   -- 2. Set the desired admin username (e.g. 'admin' or 'formel_admin')
+   -- Replace 'pradeepsai2901@gmail.com' with the email used in Supabase Auth if different:
+   update public.admin_users
+   set username = 'admin'
+   where lower(trim(email)) = lower(trim('pradeepsai2901@gmail.com'));
    ```
+4. Now, the business owner can simply log in at `#admin` using:
+   * **Username:** `admin` (or whatever handle you chose)
+   * **Password:** *(The admin password)*
 
 ---
 

@@ -374,9 +374,9 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onExit }) => {
                 <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#C6A15B]/20 text-[#563829] border border-[#C6A15B]/30 uppercase tracking-wide">
                   Admin Studio
                 </span>
-                {currentAdmin?.email && (
+                {(currentAdmin?.username || currentAdmin?.email) && (
                   <span className="hidden md:inline-block text-[11px] font-medium text-[#563829]/75 bg-white/70 px-2.5 py-0.5 rounded-full border border-white">
-                    {currentAdmin.email}
+                    @{currentAdmin.username || currentAdmin.email.split('@')[0]}
                   </span>
                 )}
               </div>

@@ -11,13 +11,35 @@ create table if not exists public.admin_users (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade unique,
   email text not null,
+  username text unique,
   role text not null default 'admin' check (role in ('admin', 'super_admin')),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
 
--- Index for rapid user lookup during auth verification
+-- Ensure column exists even on pre-existing tables
+alter table public.admin_users add column if not exists username text unique;
+
+-- Indexes for rapid user lookup during auth verification
 create index if not exists idx_admin_users_user_id on public.admin_users(user_id);
+create index if not exists idx_admin_users_username on public.admin_users(lower(username));
+
+-- Secure username resolution function for login
+create or replace function public.get_admin_email_by_username(p_username text)
+returns text
+language sql
+security definer
+set search_path = public
+stable
+as $$
+  select email from public.admin_users
+  where lower(trim(username)) = lower(trim(p_username))
+     or lower(trim(email)) = lower(trim(p_username))
+     or lower(trim(split_part(email, '@', 1))) = lower(trim(p_username))
+  limit 1;
+$$;
+
+grant execute on function public.get_admin_email_by_username(text) to anon, authenticated;
 
 -- 3. Categories Table
 create table if not exists public.categories (

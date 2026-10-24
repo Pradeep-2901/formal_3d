@@ -19,7 +19,7 @@ export const SecuritySettingsModal: React.FC<SecuritySettingsModalProps> = ({
   onClose,
   onSuccessToast
 }) => {
-  const [adminEmail, setAdminEmail] = useState<string>('');
+  const [adminUsername, setAdminUsername] = useState<string>('');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -36,7 +36,7 @@ export const SecuritySettingsModal: React.FC<SecuritySettingsModalProps> = ({
     if (isOpen) {
       getCurrentAdminUser().then((user) => {
         if (user) {
-          setAdminEmail(user.email);
+          setAdminUsername(user.username || (user.email ? user.email.split('@')[0] : 'admin'));
         }
       });
       setCurrentPassword('');
@@ -133,7 +133,7 @@ export const SecuritySettingsModal: React.FC<SecuritySettingsModalProps> = ({
         <div className="mb-5 p-3 rounded-2xl bg-white/80 border border-[#563829]/10 text-xs flex items-center justify-between">
           <div className="flex items-center gap-2 text-[#563829]">
             <ShieldCheck className="w-4 h-4 text-[#2E7D32]" />
-            <span>Active Admin: <strong className="text-[#242322] font-semibold">{adminEmail || 'Loading...'}</strong></span>
+            <span>Active Admin: <strong className="text-[#242322] font-semibold">{adminUsername || 'Loading...'}</strong></span>
           </div>
           <span className="text-[10px] text-[#2E7D32] font-medium bg-[#2E7D32]/10 px-2 py-0.5 rounded-md">
             Supabase Protected
